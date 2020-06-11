@@ -8,10 +8,9 @@ from urllib3 import HTTPConnectionPool
 
 class api_runner(threading.Thread):
 
-    def __init__(self, host, num, proxy):
+    def __init__(self, host, num):
         threading.Thread.__init__(self)
         self.host = host
-        self.proxy = proxy
         self.num = str(num)
 
     def createApiHeader(self, host, hashAndPhpSID, refer):
@@ -43,7 +42,7 @@ class api_runner(threading.Thread):
             "Upgrade-Insecure-Requests": "1",
         }
         session = requests.Session()
-        r = session.get("https://" + host, proxies = self.proxy, headers=headers)
+        r = session.get("https://" + host, headers=headers)
         return(session.cookies.get_dict())
 
     def createApiData(self):
@@ -82,11 +81,8 @@ class api_runner(threading.Thread):
         return actionsWithData
 
     def runRequest(self, url, header, cookies, data):
-        try:
-            r = requests.post(url, headers=header, proxies=self.proxy, cookies=cookies, data=data)
-            return "OK" if r.status_code == 200 else "FAIL"
-        except HTTPConnectionPool:
-            print("Thread failed due to no connection to proxy")
+        r = requests.post(url, headers=header, cookies=cookies, data=data)
+        return "OK" if r.status_code == 200 else "FAIL"
 
     def run(self):
         print("Starting thread " + self.num )
